@@ -1,1 +1,1 @@
-{"topics":[{"channels":[{"name":"c1","paused":false}],"name":"calculateMardTask","paused":false},{"channels":[{"name":"c1","paused":false}],"name":"uploadFileToQiniuTask","paused":false}],"version":"1.2.1"}
+{"topics":[{"channels":[{"name":"c1","paused":false}],"name":"calculateMardTask","paused":false},{"channels":[{"name":"c1","paused":false}],"name":"uploadFileToQiniuTask","paused":false},{"channels":[],"name":"testTask1","paused":false},{"channels":[],"name":"testTask2","paused":false}],"version":"1.2.1"}

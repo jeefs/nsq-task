@@ -1,4 +1,4 @@
-package nsqQueue
+package nsqTask
 
 import (
 	"github.com/nsqio/go-nsq"
@@ -6,33 +6,31 @@ import (
 )
 
 var (
-	initOnce   sync.Once
-	Producers  map[string]*nsq.Producer
-	TaskLogger sync.Map
+	initOnce  sync.Once
+	Producers map[string]*nsq.Producer
 )
 
-const CalculateMardTopic = "calculateMardTask"
-const UploadFileToQiniuTopic = "uploadFileToQiniuTask"
+const TestTask1 = "testTask1"
+const TestTask2 = "testTask2"
 
 func SetUp() {
 	initOnce.Do(func() {
-		setLogger()
 		Producers = make(map[string]*nsq.Producer, 2)
 		sendTask(TaskConfig{
-			TopicName:        CalculateMardTopic,
+			TopicName:        TestTask1,
 			ConsumerTotal:    3,
 			NsqAddress:       "127.0.0.1:4150",
 			NsqLookupAddress: "127.0.0.1:4161",
 			ChannelName:      "c1",
-			Handler:          &CalculateMardHandler{},
+			Handler:          &Task1Handler{},
 		})
 		sendTask(TaskConfig{
-			TopicName:        UploadFileToQiniuTopic,
+			TopicName:        TestTask2,
 			ConsumerTotal:    3,
 			NsqAddress:       "127.0.0.1:4150",
 			NsqLookupAddress: "127.0.0.1:4161",
 			ChannelName:      "c1",
-			Handler:          &UploadFileToQiniuHandler{},
+			Handler:          &Task2Handler{},
 		})
 	})
 }

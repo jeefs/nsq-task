@@ -1,4 +1,4 @@
-package nsqQueue
+package nsqTask
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ type TaskConfig struct {
 	Handler          nsq.Handler
 }
 
-// 注册任务
+// register task
 func sendTask(config TaskConfig) {
 	producer, err := initProducer(config.NsqAddress)
 	if err != nil {
@@ -26,7 +26,7 @@ func sendTask(config TaskConfig) {
 		panic(err)
 	}
 	Producers[config.TopicName] = producer
-	fmt.Println("生产者就绪")
+	fmt.Println("producer ready ")
 
 	for i := 1; i <= config.ConsumerTotal; i++ {
 		i := i
@@ -36,7 +36,7 @@ func sendTask(config TaskConfig) {
 				fmt.Printf("init consumer failed, err:%v\n", err)
 				panic(err)
 			}
-			fmt.Printf("消费者%v就绪", i)
+			fmt.Printf("consumer %v ready", i)
 			sigChan := make(chan os.Signal, 1)
 			signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 			<-sigChan
@@ -53,7 +53,7 @@ func GetProducer(topicName string) *nsq.Producer {
 	}
 }
 
-// 初始化生产者
+// init producer
 func initProducer(str string) (*nsq.Producer, error) {
 	config := nsq.NewConfig()
 	producer, err := nsq.NewProducer(str, config)
@@ -64,10 +64,9 @@ func initProducer(str string) (*nsq.Producer, error) {
 	return producer, nil
 }
 
-// 初始化消费者
+// init consumer
 func initConsumer(topicName string, channelName string, address string, handler nsq.Handler) (*nsq.Consumer, error) {
 	config := nsq.NewConfig()
-	//config.MaxInFlight = 2
 	config.LookupdPollInterval = 15 * time.Second
 	consumer, err := nsq.NewConsumer(topicName, channelName, config)
 	if err != nil {
@@ -75,11 +74,11 @@ func initConsumer(topicName string, channelName string, address string, handler 
 		return nil, err
 	}
 	consumer.AddHandler(handler)
-	if err = consumer.ConnectToNSQD(address); err != nil { // 直接连NSQD
-		return nil, err
-	}
-	//if err = consumer.ConnectToNSQLookupd(address); err != nil { // 通过lookupd查询
+	//if err = consumer.ConnectToNSQD(address); err != nil { // Direct Connect nsqd
 	//	return nil, err
 	//}
+	if err = consumer.ConnectToNSQLookupd(address); err != nil { // Found via nsqlookupd
+		return nil, err
+	}
 	return consumer, nil
 }

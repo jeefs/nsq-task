@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+
 	nsqTask.SetUp() //initialization,Generally at the framework entry file
 	producer := nsqTask.GetProducer(nsqTask.TestTask1)
 	msg := "msg 1"
@@ -15,14 +16,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer func() {
+		file.Close()
+	}()
 	log.SetOutput(file)
+	//push message
 	err = producer.Publish(nsqTask.TestTask1, []byte(msg))
 	if err != nil {
 		log.Printf("push message failed:%v", err.Error())
 	} else {
 		log.Printf("push message successful")
 	}
-
 	msg = "msg 2"
 	err = producer.Publish(nsqTask.TestTask2, []byte(msg))
 	if err != nil {
